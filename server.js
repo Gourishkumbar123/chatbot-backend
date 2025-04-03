@@ -2,16 +2,22 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mysql from 'mysql2';
-const dialogflow = require("dialogflow");
+import dialogflow from '@google-cloud/dialogflow';
 
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
+const dialogflow = require("dialogflow");
+const bodyParser = require("body-parser");
 
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.json());
+
+const projectId = "paymentbot-lpeu";  // Replace with your Dialogflow project ID
+const sessionClient = new dialogflow.SessionsClient();
 
 // Connect to MySQL
 const db = mysql.createConnection({
@@ -78,6 +84,34 @@ app.post('/chat', async (req, res) => {
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Endpoint for the chatbot
+app.post("/chat", async (req, res) => {
+    const { message } = req.body;  // User's message sent from the frontend
+    const sessionId = "12345";  // Replace with a unique session ID, can be user-specific
+    
+    const sessionPath = sessionClient.sessionPath(projectId, sessionId);
+
+    const request = {
+        session: sessionPath,
+        queryInput: {
+            text: {
+                text: message,
+                languageCode: "en",
+            },
+        },
+    };
+
+    try {
+        // Call the Dialogflow API to detect the user's intent
+        const responses = await sessionClient.detectIntent(request);
+        const result = responses[0].queryResult;  // Get the response from Dialogflow
+        res.json({ reply: result.fulfillmentText });  // Send back the response to the frontend
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
     }
 });
 
