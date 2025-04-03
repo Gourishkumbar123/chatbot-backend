@@ -1,23 +1,20 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import mysql from 'mysql2';
-import dialogflow from 'dialogflow';
-
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const mysql = require('mysql2');
+const dialogflow = require('@google-cloud/dialogflow');
+const bodyParser = require('body-parser');
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
-const dialogflow = require("dialogflow");
-const bodyParser = require("body-parser");
+const projectId = "paymentbot-lpeu";  // Replace with your Dialogflow project ID
+const sessionClient = new dialogflow.SessionsClient();
 
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-
-const projectId = "paymentbot-lpeu";  // Replace with your Dialogflow project ID
-const sessionClient = new dialogflow.SessionsClient();
 
 // Connect to MySQL
 const db = mysql.createConnection({
@@ -62,7 +59,6 @@ app.post("/check-kyc", (req, res) => {
         res.json({ kyc_status: result[0].kyc_status });
     });
 });
-
 
 // API to check card balance
 app.post("/check-balance", (req, res) => {
