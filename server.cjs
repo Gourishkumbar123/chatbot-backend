@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mysql from 'mysql2';
-import dialogflow from '@google-cloud/dialogflow';
+import dialogflow from 'dialogflow';
 
 
 dotenv.config();
