@@ -1,9 +1,10 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const mysql = require('mysql2');
-import dialogflow from 'dialogflow';
-const bodyParser = require('body-parser');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import mysql from 'mysql2';
+import dialogflow from '@google-cloud/dialogflow';
+import bodyParser from 'body-parser';
+
 dotenv.config();
 
 const app = express();
@@ -70,18 +71,6 @@ app.post("/check-balance", (req, res) => {
     });
 });
 
-app.post('/chat', async (req, res) => {
-    try {
-        const { message } = req.body;
-        // Add your chatbot logic here
-        const reply = `Echo: ${message}`;
-        res.json({ reply });
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
 // Endpoint for the chatbot
 app.post("/chat", async (req, res) => {
     const { message } = req.body;  // User's message sent from the frontend
@@ -112,4 +101,4 @@ app.post("/chat", async (req, res) => {
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
-});
+}); 
