@@ -1,10 +1,9 @@
 const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const mysql = require('mysql2');
 const dialogflow = require('dialogflow');
-import cors from 'cors';
-import dotenv from 'dotenv';
-import mysql from 'mysql2';
-import dialogflow from "dialogflow";
-import bodyParser from 'body-parser';
+const bodyParser = require('body-parser');
 
 dotenv.config();
 
