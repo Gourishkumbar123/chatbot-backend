@@ -1,4 +1,5 @@
 const express = require('express');
+const dialogflow = require('dialogflow');
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mysql from 'mysql2';
@@ -15,6 +16,10 @@ const sessionClient = new dialogflow.SessionsClient();
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
+
+app.get('/', (req, res) => {
+    res.send('Dialogflow Chatbot Backend is running!');
+  });
 
 // Connect to MySQL
 const db = mysql.createConnection({
