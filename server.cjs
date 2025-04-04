@@ -1,13 +1,9 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import mysql from 'mysql2';
-import dialogflow from '@google-cloud/dialogflow';
-import bodyParser from 'body-parser';
-
-dotenv.config();
-
-// ... rest of the code
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const mysql = require('mysql2');
+const dialogflow = require('@google-cloud/dialogflow');
+const bodyParser = require('body-parser');
 
 dotenv.config();
 
@@ -22,7 +18,7 @@ app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
     res.send('Dialogflow Chatbot Backend is running!');
-  });
+});
 
 // Connect to MySQL
 const db = mysql.createConnection({
