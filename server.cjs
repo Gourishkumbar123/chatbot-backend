@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const mysql = require('mysql2');
-const dialogflow = require('dialogflow');
+const dialogflow = require('@google-cloud/dialogflow').v2beta1;
 const bodyParser = require('body-parser');
 
 dotenv.config();
