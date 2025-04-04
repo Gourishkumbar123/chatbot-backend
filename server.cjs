@@ -1,8 +1,8 @@
-import express from 'express';
+const express = require('express');
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mysql from 'mysql2';
-import dialogflow from '@google-cloud/dialogflow';
+import dialogflow from "dialogflow";
 import bodyParser from 'body-parser';
 
 dotenv.config();
