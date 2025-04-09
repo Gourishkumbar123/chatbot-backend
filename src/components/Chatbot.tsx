@@ -9,10 +9,12 @@ interface Message {
 const ChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [awaitingUserId, setAwaitingUserId] = useState(false);
+  const [awaitingCardId, setAwaitingCardId] = useState(false);
+  const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     { text: "Hi! I'm VA Tech's assistant. How can I help you today?", isBot: true }
   ]);
-  const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -23,40 +25,61 @@ const ChatBot: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
+  const getBotResponse = (input: string) => {
+    return "I can help you learn more about our Card Management System, Banking Solutions, Corporate Solutions, or B2B Pay. What would you like to know about?";
+  };
+
   const handleSend = async () => {
     if (!input.trim()) return;
 
     const userMessage = { text: input, isBot: false };
     setMessages(prev => [...prev, userMessage]);
+    const trimmedInput = input.trim();
     setInput('');
 
-    // Simulate bot response
-    setTimeout(() => {
-      const botResponse = getBotResponse(input);
-      setMessages(prev => [...prev, { text: botResponse, isBot: true }]);
-    }, 1000);
-  };
+    if (awaitingUserId) {
+      try {
+        const res = await fetch('http://localhost:5050/check-kyc', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: trimmedInput })
+        });
+        const data = await res.json();
+        const kycStatus = data.kyc_status || data.message || 'Unable to fetch KYC status.';
+        setMessages(prev => [...prev, { text: `Your KYC status is: ${kycStatus}`, isBot: true }]);
+      } catch (error) {
+        setMessages(prev => [...prev, { text: "Something went wrong while checking your KYC. Please try again", isBot: true }]);
+      }
+      setAwaitingUserId(false);
 
-  const getBotResponse = (userInput: string) => {
-    const input = userInput.toLowerCase();
-    
-    if (input.includes('card') || input.includes('cms')) {
-      return "Our Card Management System (CMS) offers end-to-end solutions including HSM Cryptography, Authorization, and Multi-wallet support. Would you like to know more specific details?";
+    } else if (awaitingCardId) {
+      try {
+        const res = await fetch('http://localhost:5050/check-balance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ card_id: trimmedInput })
+        });
+        const data = await res.json();
+        const balance = data.balance || data.message || 'Unable to fetch balance.';
+        setMessages(prev => [...prev, { text: `Your card balance is: ₹${balance}`, isBot: true }]);
+      } catch (error) {
+        setMessages(prev => [...prev, { text: "Something went wrong while checking your balance.", isBot: true }]);
+      }
+      setAwaitingCardId(false);
+
+    } else {
+      const lower = trimmedInput.toLowerCase();
+      if (lower.includes('kyc')) {
+        setMessages(prev => [...prev, { text: 'Please enter your user ID to check KYC status.', isBot: true }]);
+        setAwaitingUserId(true);
+      } else if (lower.includes('balance')) {
+        setMessages(prev => [...prev, { text: 'Please enter your card ID to check balance.', isBot: true }]);
+        setAwaitingCardId(true);
+      } else {
+        const botResponse = getBotResponse(trimmedInput);
+        setMessages(prev => [...prev, { text: botResponse, isBot: true }]);
+      }
     }
-    if (input.includes('banking') || input.includes('fintech')) {
-      return "We provide comprehensive Banking & Fintech solutions including Limit Management Stack, Wallet Stack, and we're registered partners with NPCI for Rupay, UPI, and BBPS.";
-    }
-    if (input.includes('corporate')) {
-      return "Our Corporate Solutions handle ₹700 Cr+ Monthly Volume with admin-controlled flows and white-labeled dashboards. Would you like to learn more about specific features?";
-    }
-    if (input.includes('b2b') || input.includes('business')) {
-      return "Our B2B Pay solution offers Platform as a Service (PaaS) with API Integration and white-labeled solutions. We recently launched at GFF 2024!";
-    }
-    if (input.includes('contact') || input.includes('support')) {
-      return "You can reach our support team at support@vatechventures.com or visit our contact page to fill out an inquiry form.";
-    }
-    
-    return "I can help you learn more about our Card Management System, Banking Solutions, Corporate Solutions, or B2B Pay. What would you like to know about?";
   };
 
   return (
@@ -105,7 +128,7 @@ const ChatBot: React.FC = () => {
               </button>
             </div>
           </div>
-          
+
           <div className="h-96 overflow-y-auto p-4">
             {messages.map((message, index) => (
               <div
@@ -125,14 +148,14 @@ const ChatBot: React.FC = () => {
             ))}
             <div ref={messagesEndRef} />
           </div>
-          
+
           <div className="p-4 border-t border-gray-200">
             <div className="flex space-x-2">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                 placeholder="Type your message..."
                 className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-sky-500"
               />

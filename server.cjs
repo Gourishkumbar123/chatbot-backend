@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = 5050;
 const projectId = "paymentbot-lpeu";  // Replace with your Dialogflow project ID
 const sessionClient = new dialogflow.SessionsClient();
 
@@ -37,6 +37,11 @@ db.connect(err => {
 });
 
 // API to check user KYC status
+app.post("/test-post", (req, res) => {
+    console.log("Received test POST request:", req.body);
+    res.json({ message: "Test route works!" });
+});
+
 app.post("/check-kyc", (req, res) => {
     console.log("Received request:", req.body); // Debugging log
 
